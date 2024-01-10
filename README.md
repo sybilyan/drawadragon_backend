@@ -11,24 +11,24 @@ backend for draw a dragon
 
 ### /dragon/upload POST
 
-  1. 入参：
-  "Content-Type": "application/json"
-  "data": {
-    "color":"white",
-    "width":512,
-    "height":512, 
-    "file_raw":file_raw_decoded,(图片转为base64格式)
-    "file_doodle":file_doodle_decoded,(图片转为base64格式)
-    "file_img_doodle":file_img_doodle_decoded(图片转为base64格式)
-    }
+  1. 入参：<br>
+  "Content-Type": "application/json"<br>
+  "data": {<br>
+    "color":"white",<br>
+    "width":512,<br>
+    "height":512, <br>
+    "file_raw":file_raw_decoded,(图片转为base64格式)<br>
+    "file_doodle":file_doodle_decoded,(图片转为base64格式)<br>
+    "file_img_doodle":file_img_doodle_decoded(图片转为base64格式)<br>
+    }<br>
 
-  2. 出参
-  response: {
-    "charset":"utf-8",
-    "content":{"picture":"xxx"},
-    "content_type":"application/json;charset=utf-8",
-    "reason":"success",
-    "status":"200"
-    }
+  2. 出参<br>
+  response: {<br>
+    "charset":"utf-8",<br>
+    "content":{"picture":"xxx"},<br>
+    "content_type":"application/json;charset=utf-8",<br>
+    "reason":"success",<br>
+    "status":"200"<br>
+    }<br>
 
 
