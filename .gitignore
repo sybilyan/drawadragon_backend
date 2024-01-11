@@ -18,5 +18,9 @@ __pycache__/
 *$py.class
 *.pyc
 
+#config
+config/
+
+
 .idea
 .vscode
