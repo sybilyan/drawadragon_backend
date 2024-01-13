@@ -9,7 +9,7 @@ tmp/
 **/__pycache__/
 
 # Django stuff:
-log/*.log
+logs/*.log
 *.log
 
 # Byte-compiled / optimized / DLL files
