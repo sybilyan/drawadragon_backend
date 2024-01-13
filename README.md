@@ -32,10 +32,10 @@ python请求脚本示例可参见client.py
     }<br>
 
 ### http://dragon.aurobitai.com/dragon/getImg GET
-  暂时没写，测试可先尝试用 <br>
+  暂时没写，测试可在等待时间后过，尝试用 <br>
 "https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_0.png"<br>
 "https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_1.png"<br>
 "https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_2.png"<br>
 "https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_3.png"<br>
-  获得图片进行展示
+  获得图片进行展示，获得不了图片正常报错
 
