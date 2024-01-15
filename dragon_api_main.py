@@ -66,7 +66,7 @@ def dragon_img2img():
 
         # 查询有多少条任务在等待
         condition = {'status': 0}
-        count = mongodb_collection_dragon.find_cond_count(condition)
+        count = mongodb_collection_dragon.find_condition_count(condition)
         logging.info(f'[ProduceDB] current task count:{count}')
         
         task_params_kafka ={
@@ -89,11 +89,52 @@ def dragon_img2img():
     return (jsonify(content_type='application/json;charset=utf-8',
                    reason='success',
                    charset='utf-8',
-                   status='200',
+                   status=200,
                    content=ret))
 
-# @app.route('/dragon/getImg', methods=[ 'GET'])
-# def dragon_getImg():     
+@app.route('/dragon/getImg/<taskId>', methods=[ 'GET'])
+def dragon_getImg(taskId = None):  
+
+    # 连接mongodb并添加一条任务
+    mongodb_collection_dragon = MongoConnection()
+    # 查询任务是否已完成
+    try:
+        condition = {'taskId': taskId}
+        find_task_num = mongodb_collection_dragon.find_condition_count(condition)
+        print(find_task_num)
+    except Exception as e:
+        logger.error(f'[getImg] ERROR, fail to load Mongodb:   {e}')
+    if find_task_num>1:
+        logger.error(f"[Error] current_task has wrong count, taskId {taskId} ")
+        return (jsonify(content_type='application/json;charset=utf-8',
+                reason='current_task num wrong',
+                charset='utf-8',
+                status=501))
+    if find_task_num==0:
+        logger.error(f"[Error] current_task NOT FIND, taskId {taskId} ")
+        return (jsonify(content_type='application/json;charset=utf-8',
+                reason='current_task NOT FIND',
+                charset='utf-8',
+                status=502))
+    find_task = mongodb_collection_dragon.find_condition(condition)
+    print(find_task)
+    if find_task[0]["dealStatus"]!=2:
+        # 查询有多少条任务在等待
+        condition = {'status': 0}
+        count = mongodb_collection_dragon.find_condition_count(condition)
+        count_time = 20*(count+1)
+        return (jsonify(content_type='application/json;charset=utf-8',
+                reason='success',
+                charset='utf-8',
+                status=201,
+                wait_time=count_time))
+    else:
+        pic_list = ["https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_" + str(i) + ".png" for i in range(4) ]
+        return (jsonify(content_type='application/json;charset=utf-8',
+                reason='success',
+                charset='utf-8',
+                status=200,
+                picture_list=pic_list))
    
 
 if __name__ == '__main__':

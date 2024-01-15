@@ -28,7 +28,7 @@ python请求脚本示例可参见client.py
            "wait_time":20},<br>
     "content_type":"application/json;charset=utf-8",<br>
     "reason":"success",<br>
-    "status":"200"<br>
+    "status":200<br>
     }<br>
 
 ### http://dragon.aurobitai.com/dragon/getImg GET
@@ -39,22 +39,45 @@ python请求脚本示例可参见client.py
     }<br>
 
   2. 出参<br>
-  会有两个结构<br>
+  成功会有两个结构<br>
    成功获取图片<br>
-  {"status"："200",<br>
-  "picture_list":["00.png","01.png","02.png","03.png"]<br>
-  }<br>
+   {<br>
+    "charset": "utf-8",<br>
+    "content_type": "application/json;charset=utf-8",<br>
+    "picture_list": [<br>
+        "https://d22742htoga38q.cloudfront.net/dragon/20240115_132952_1c08cff0b36711ee9391ac50de795704_0.png",<br>
+        "https://d22742htoga38q.cloudfront.net/dragon/20240115_132952_1c08cff0b36711ee9391ac50de795704_1.png",<br>
+        "https://d22742htoga38q.cloudfront.net/dragon/20240115_132952_1c08cff0b36711ee9391ac50de795704_2.png",<br>
+        "https://d22742htoga38q.cloudfront.net/dragon/20240115_132952_1c08cff0b36711ee9391ac50de795704_3.png"<br>
+    ],
+    "reason": "success",<br>
+    "status": 200<br>
+   }<br>
+
   仍需等待时间<br>
-  {"status"："201",<br>
-  "wait_time":20<br>
-  }<br>
+   {<br>
+    "charset": "utf-8",<br>
+    "content_type": "application/json;charset=utf-8",<br>
+    "wait_time": 20,<br>
+    "reason": "success",<br>
+    "status": 201<br>
+   }<br>
+
+   失败结构<br>
+   {<br>
+    "charset": "utf-8",<br>
+    "content_type": "application/json;charset=utf-8",<br>
+    "reason": "current_task num wrong",<br>
+    "status": 501<br>
+   }<br>
+
+   {<br>
+    "charset": "utf-8",<br>
+    "content_type": "application/json;charset=utf-8",<br>
+    "reason": "current_task NOT FIND",<br>
+    "status": 502<br>
+   }<br>
 
 
-  先做该接口还没做好，可以在等待时间后，尝试用 <br>
-"https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_0.png"<br>
-"https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_1.png"<br>
-"https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_2.png"<br>
-"https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_3.png"<br>
-  获得图片进行展示，获得不了图片正常报错。
-  正常get接口返回的地址也是这样拼完返回的。
+
 

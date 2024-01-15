@@ -57,14 +57,14 @@ class MongoConnection:
             logging.error(f'[ProduceTaskAddDB] ERROR, fail to load Mongodb:   {e}')
 
 
-    def find_cond(self,condition):
+    def find_condition(self,condition):
         try:
             return self.collection.find(condition)
         except Exception as e:
             logging.error(f'[ProduceTaskFind] ERROR, fail to load Mongodb:   {e}')
 
 
-    def find_cond_count(self,condition):
+    def find_condition_count(self,condition):
         try:
             return self.collection.count_documents(condition)
         except Exception as e:
