@@ -9,6 +9,7 @@ file_doodle_decoded = file_doodle.decode()
 file_raw_decoded = file_raw.decode()
 
 url = "http://127.0.0.1:5555/dragon/upload" # 输入服务器IP
+url = "https://dragon.aurobitai.com/dragon/getImg/20240113_183629_9cb03860b1ff11eea3b83fceaaad50e0"
 mydata = {
     "color":"white",
     "width":512,

@@ -18,7 +18,6 @@ UPLOAD_PATH = os.path.join(os.path.dirname(__file__), 'img')
 #设置日志
 logger = logging.getLogger()
 logger.setLevel(logging.INFO) 
-
 now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 formatter = logging.Formatter("%(asctime)s - %(levelname)s: %(message)s")
 #设置将日志输出到文件中，并且定义文件内容
@@ -34,7 +33,8 @@ controlshow.setFormatter(formatter)
 logger.addHandler(fileinfo)
 logger.addHandler(controlshow)
 
-task_id = now +"_"+ uuid.uuid1().hex
+avg_time = 30
+
 @app.route('/dragon/upload', methods=[ 'POST'])
 def dragon_img2img():
     """
@@ -48,6 +48,8 @@ def dragon_img2img():
     3、发kafka任务
     4、返回id和计算时间  
     """
+    task_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    task_id = task_time +"_"+ uuid.uuid1().hex
     count = 0
     try:
         params = request.form if request.form else request.json
@@ -71,7 +73,7 @@ def dragon_img2img():
         
         task_params_kafka ={
                 "taskId": task_id,
-                "taskDetail": params
+                # "taskDetail": params
                 }
         # 连接kafka 并添加一条任务
         # 发送消息
@@ -83,7 +85,7 @@ def dragon_img2img():
     except Exception as e:
         logger.error(f"[Error] image_task. {e}\n{traceback.format_exc()}")
     
-    count_time = 20*(count+1)
+    count_time = avg_time*(count+1)
     ret = {"task_id":task_id,
            "wait_time":count_time}
     return (jsonify(content_type='application/json;charset=utf-8',
@@ -122,14 +124,14 @@ def dragon_getImg(taskId = None):
         # 查询有多少条任务在等待
         condition = {'status': 0}
         count = mongodb_collection_dragon.find_condition_count(condition)
-        count_time = 20*(count+1)
+        count_time = avg_time*(count+1)
         return (jsonify(content_type='application/json;charset=utf-8',
                 reason='success',
                 charset='utf-8',
                 status=201,
                 wait_time=count_time))
     else:
-        pic_list = ["https://d22742htoga38q.cloudfront.net/dragon/" + task_id + "_" + str(i) + ".png" for i in range(4) ]
+        pic_list = ["https://aiyo-1319341997.cos.ap-nanjing.myqcloud.com/dragon/" + taskId + "_" + str(i) + ".png" for i in range(4) ]
         return (jsonify(content_type='application/json;charset=utf-8',
                 reason='success',
                 charset='utf-8',
@@ -142,5 +144,3 @@ if __name__ == '__main__':
     # test_img2img()
 
     app.run(host='0.0.0.0', port=5555)
-
-    

@@ -103,10 +103,10 @@ class TaskProducer():
             self.producer.close()
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    task_consumer = TaskProducer()
-    task_consumer.run()
+#     task_consumer = TaskProducer()
+#     task_consumer.run()
 
 
 
