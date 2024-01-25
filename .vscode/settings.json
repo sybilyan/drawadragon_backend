@@ -1,0 +1,12 @@
+{
+  "python.languageServer": "Pylance",
+  "python.analysis.indexing": true,
+  "python.analysis.autoImportCompletions": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "editor.formatOnType": true
+  },
+  "editor.formatOnSave": true,
+}

@@ -1,17 +1,24 @@
-from flask import Flask, request, jsonify
+from fastapi import APIRouter, Body, HTTPException, WebSocket
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.websockets import WebSocketState
+
+from app.services.socket_service import handle_websocket_client
+
+
+dragon_router = APIRouter()
+
+
 import datetime
 import json
 import logging
 import os
 import traceback
-from task.kafka_producer import TaskProducer
-from task.mongo_connection import MongoConnection
+from app.task.kafka_producer import TaskProducer
+from app.task.mongo_connection import MongoConnection
 import uuid
 
 # from flask_cors import *
 os.environ["NLS_LANG"] = "SIMPLIFIED CHINESE_CHINA.UTF8"
-
-app = Flask(__name__)
 
 
 # 上传的图片保存路径
@@ -22,24 +29,26 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 formatter = logging.Formatter("%(asctime)s - %(levelname)s: %(message)s")
+
 # 设置将日志输出到文件中，并且定义文件内容
-fileinfo = logging.FileHandler(f"logs/AutoTest_log_{now}.log")
-fileinfo.setLevel(logging.INFO)
-fileinfo.setFormatter(formatter)
+file_info = logging.FileHandler(f"logs/AutoTest_log_{now}.log")
+file_info.setLevel(logging.INFO)
+file_info.setFormatter(formatter)
+
 # 设置将日志输出到控制台
-controlshow = logging.StreamHandler()
-controlshow.setLevel(logging.INFO)
-controlshow.setFormatter(formatter)
+control_show = logging.StreamHandler()
+control_show.setLevel(logging.INFO)
+control_show.setFormatter(formatter)
 
 
-logger.addHandler(fileinfo)
-logger.addHandler(controlshow)
+logger.addHandler(file_info)
+logger.addHandler(control_show)
 
 avg_time = 30
 
 
-@app.route("/dragon/upload", methods=["POST"])
-def dragon_img2img():
+@dragon_router.post("/upload")
+async def dragon_img2img(payload: dict = Body(...)):
     """
     test text to image feature
     """
@@ -54,8 +63,9 @@ def dragon_img2img():
     task_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     task_id = task_time + "_" + uuid.uuid1().hex
     count = 0
+
     try:
-        params = request.form if request.form else request.json
+        params = payload
 
         task_params_db = {"taskId": task_id, "dealStatus": 0, "taskDetail": params}
         # logging.info(f'[Producer]: start. with task_param:{task_params_db}')
@@ -85,18 +95,13 @@ def dragon_img2img():
         logger.error(f"[Error] image_task. {e}\n{traceback.format_exc()}")
 
     count_time = avg_time * (count + 1)
+
     ret = {"task_id": task_id, "wait_time": count_time}
-    return jsonify(
-        content_type="application/json;charset=utf-8",
-        reason="success",
-        charset="utf-8",
-        status=200,
-        content=ret,
-    )
+    return ret
 
 
-@app.route("/dragon/getImg/<taskId>", methods=["GET"])
-def dragon_getImg(taskId=None):
+@dragon_router.get("/getImg/{taskId}", status_code=200)
+async def dragon_getImg(taskId: str = None):
     # 连接mongodb并添加一条任务
     mongodb_collection_dragon = MongoConnection()
     # 查询任务是否已完成
@@ -108,20 +113,10 @@ def dragon_getImg(taskId=None):
         logger.error(f"[getImg] ERROR, fail to load Mongodb:   {e}")
     if find_task_num > 1:
         logger.error(f"[Error] current_task has wrong count, taskId {taskId} ")
-        return jsonify(
-            content_type="application/json;charset=utf-8",
-            reason="current_task num wrong",
-            charset="utf-8",
-            status=501,
-        )
+        raise HTTPException(status_code=501, detail="current_task num wrong")
     if find_task_num == 0:
         logger.error(f"[Error] current_task NOT FIND, taskId {taskId} ")
-        return jsonify(
-            content_type="application/json;charset=utf-8",
-            reason="current_task NOT FIND",
-            charset="utf-8",
-            status=502,
-        )
+        raise HTTPException(status_code=502, detail="current_task NOT FIND")
     find_task = mongodb_collection_dragon.find_condition(condition)
     print(find_task)
     if find_task[0]["dealStatus"] != 2:
@@ -129,13 +124,8 @@ def dragon_getImg(taskId=None):
         condition = {"status": 0}
         count = mongodb_collection_dragon.find_condition_count(condition)
         count_time = avg_time * (count + 1)
-        return jsonify(
-            content_type="application/json;charset=utf-8",
-            reason="success",
-            charset="utf-8",
-            status=201,
-            wait_time=count_time,
-        )
+        return JSONResponse(status_code=201, content={"wait_time": count_time})
+
     else:
         pic_list = [
             "https://aiyo-1319341997.cos.ap-nanjing.myqcloud.com/dragon/"
@@ -145,17 +135,24 @@ def dragon_getImg(taskId=None):
             + ".png"
             for i in range(4)
         ]
-        return jsonify(
-            content_type="application/json;charset=utf-8",
-            reason="success",
-            charset="utf-8",
-            status=200,
-            picture_list=pic_list,
-        )
+        return pic_list
 
 
-if __name__ == "__main__":
-    # del_mask_pic()
-    # test_img2img()
+@dragon_router.websocket("/draw")
+async def handle_redraw(client: WebSocket):
+    """create a websocket connection to generate image by drawing at realtime
 
-    app.run(host="0.0.0.0", port=5555)
+    Args:
+        client (WebSocket): client websocket connection
+    """
+    await client.accept()
+
+    try:
+        await handle_websocket_client(client)
+
+    except Exception as err:
+        print(f"connection closed by error")
+
+        # don't need close
+        # if client.client_state != WebSocketState.DISCONNECTED:
+        #     await client.close()

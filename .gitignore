@@ -1,6 +1,6 @@
-
 # 忽略venv文件夹
 venv/
+.venv/
 
 # 忽略tmp文件夹及其所有内容
 tmp/
@@ -20,7 +20,3 @@ __pycache__/
 
 #config
 config/
-
-
-.idea
-.vscode
